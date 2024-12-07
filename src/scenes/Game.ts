@@ -1,5 +1,9 @@
 import { Scene } from "phaser";
 
+const bucketTopY = 460;
+const wallHeight = 280;
+const slotWidth = 30;
+
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   background: Phaser.GameObjects.Image;
@@ -41,7 +45,8 @@ export class Game extends Scene {
     // this.msg_text.setOrigin(0.5);
 
     this.input.once("pointerdown", () => {
-      //   this.scene.start("GameOver");
+      // this.scene.start("GameOver");
+      this.scene.start("Game");
     });
 
     this.matter.world.setBounds(0, 0, 800, 600, 32, true, true, false, false);
@@ -65,6 +70,7 @@ export class Game extends Scene {
         max = 22;
       }
 
+      // generate array of pins
       for (let x = 0; x < max; x++) {
         const radius = 3;
         const pin = this.matter.add.image(startX + x * 32, startY + y, "ball");
@@ -83,22 +89,64 @@ export class Game extends Scene {
     }
 
     //  Our bucket to collect the balls in
-    this.bucket = this.add.rectangle(200, 550, 200, 32, 0xffffff);
-
-    this.matter.add.gameObject(this.bucket, { isStatic: true, isSensor: true });
-
-    this.bucket.setCollisionCategory(this.bucketCategory);
-    this.bucket.setCollidesWith([this.ballsCategory]);
+    // this.bucket = this.add.rectangle(200, 550, 200, 32, 0xffffff);
+    // this.matter.add.gameObject(this.bucket, { isStatic: true, isSensor: true });
+    // this.bucket.setCollisionCategory(this.bucketCategory);
+    // this.bucket.setCollidesWith([this.ballsCategory]);
 
     //  Use a tween to move the bucket in a set path
-    this.tweens.add({
-      targets: this.bucket,
-      x: 600,
-      duration: 6000,
-      yoyo: true,
-      repeat: -1,
-      ease: "linear",
+    // this.tweens.add({
+    //   targets: this.bucket,
+    //   x: 600,
+    //   duration: 6000,
+    //   yoyo: true,
+    //   repeat: -1,
+    //   ease: "linear",
+    // });
+
+    const floorWidth = this.cameras.main.width;
+    const floor = this.add.rectangle(
+      floorWidth / 2,
+      bucketTopY + wallHeight,
+      floorWidth,
+      10,
+      0xffffff
+    );
+    this.matter.add.gameObject(floor, {
+      isStatic: true,
+      //   restitution: 0,
+      collisionFilter: {
+        category: this.ballsCategory,
+        //   mask: this.pinsCategory,
+      },
+      collidesWith: [this.ballsCategory],
     });
+
+    const wallCount = floorWidth / slotWidth;
+    for (let i = 0; i < wallCount; i++) {
+      const wall = this.add.rectangle(
+        5 + i * (slotWidth + 2),
+        bucketTopY + wallHeight / 2,
+        10,
+        wallHeight,
+        0xffffff
+      );
+      this.matter.add.gameObject(wall, {
+        isStatic: true,
+        //   restitution: 0,
+        collisionFilter: {
+          category: this.ballsCategory,
+          //   mask: this.pinsCategory,
+        },
+        collidesWith: [this.ballsCategory],
+      });
+    }
+
+    // console.log(body);
+    // console.log(floor);
+    // console.log(floor.body);
+    // const body = floor.body as MatterJS.Body;
+    // body.collisionFilter.categroy = this.ballsCategory;
 
     //  Our 'dropper' that will drop balls from the top (technically this doesn't have to be a physics object, but it helps for debugging)
     // const dropper = this.matter.add.rectangle(400, 50, 96, 32, {
@@ -138,7 +186,7 @@ export class Game extends Scene {
   }
 
   update(time: number, delta: number) {
-    const maxBalls = 100;
+    const maxBalls = 200;
     const msPerBall = 50;
     if (this.balls.size < maxBalls && this.lastBallTime + msPerBall < time) {
       this.lastBallTime = time;
@@ -147,7 +195,10 @@ export class Game extends Scene {
 
     //  If a ball goes below the screen, remove it
     this.balls.forEach((ball) => {
-      if (ball.y > 650) {
+      if (ball.y > bucketTopY) {
+        ball.setBounce(0);
+      }
+      if (ball.y > 850) {
         this.balls.delete(ball);
 
         ball.destroy();
@@ -157,11 +208,12 @@ export class Game extends Scene {
 
   createBall(x: number, y: number) {
     const ball = this.matter.add.image(x, y, "ball");
+    // this.matter.add.rectangle(x, y, 10, 10, {});
     const radius = 10;
     ball.setDisplaySize(radius * 2, radius * 2);
     ball.setCircle(radius);
     ball.setFriction(0.005);
-    ball.setBounce(1);
+    ball.setBounce(0.5);
     ball.setCollisionCategory(this.ballsCategory);
     ball.setCollidesWith([
       this.ballsCategory,
@@ -169,15 +221,15 @@ export class Game extends Scene {
       this.bucketCategory,
     ]);
 
-    this.bucket.setOnCollideWith(ball.body, (body, collisionData) => {
-      this.balls.delete(ball);
+    // this.bucket.setOnCollideWith(ball.body, (body, collisionData) => {
+    //   this.balls.delete(ball);
 
-      ball.destroy();
+    //   ball.destroy();
 
-      //   score += 100;
+    //   //   score += 100;
 
-      //   scoreText.setText("Score: " + score);
-    });
+    //   //   scoreText.setText("Score: " + score);
+    // });
 
     this.balls.add(ball);
 
