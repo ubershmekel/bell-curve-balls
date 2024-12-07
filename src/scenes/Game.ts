@@ -7,6 +7,8 @@ const slotWidth = 30;
 const pinStartY = 100;
 const ballDropY = 50;
 
+// Started with https://phaser.io/examples/v3.85.0/physics/matterjs/view/pachinko
+
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   background: Phaser.GameObjects.Image;
@@ -61,18 +63,20 @@ export class Game extends Scene {
     this.bucketCategory = this.matter.world.nextCategory();
 
     //  Create a basic pachinko board layout
+    const maxPins = 28;
+    const midPins = 27;
 
     for (let y = 0; y < 8; y++) {
       let startX = 50;
-      let max = 23;
+      let pinCount = maxPins;
 
       if (y % 2 === 0) {
         startX = 50 + 16;
-        max = 22;
+        pinCount = midPins;
       }
 
       // generate array of pins
-      for (let x = 0; x < max; x++) {
+      for (let x = 0; x < pinCount; x++) {
         const radius = 3;
         const pin = this.matter.add.image(
           startX + x * 32,
@@ -189,10 +193,10 @@ export class Game extends Scene {
   }
 
   update(time: number, _delta: number) {
-    const msPerBall = 50;
+    const msPerBall = 10;
     if (this.balls.size < maxBalls && this.lastBallTime + msPerBall < time) {
       this.lastBallTime = time;
-      this.createBall(400, ballDropY);
+      this.createBall(500 + Math.random() * 8, ballDropY);
     }
 
     //  If a ball goes below the screen, remove it
