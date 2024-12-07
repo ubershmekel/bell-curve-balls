@@ -1,8 +1,11 @@
 import { Scene } from "phaser";
 
+const maxBalls = 300;
 const bucketTopY = 460;
 const wallHeight = 280;
 const slotWidth = 30;
+const pinStartY = 100;
+const ballDropY = 50;
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
@@ -59,8 +62,6 @@ export class Game extends Scene {
 
     //  Create a basic pachinko board layout
 
-    let startY = 150;
-
     for (let y = 0; y < 8; y++) {
       let startX = 50;
       let max = 23;
@@ -73,7 +74,11 @@ export class Game extends Scene {
       // generate array of pins
       for (let x = 0; x < max; x++) {
         const radius = 3;
-        const pin = this.matter.add.image(startX + x * 32, startY + y, "ball");
+        const pin = this.matter.add.image(
+          startX + x * 32,
+          pinStartY + y * 38,
+          "ball"
+        );
         pin.setDisplaySize(radius * 2, radius * 2);
         pin.setCircle(radius);
         pin.setStatic(true);
@@ -84,8 +89,6 @@ export class Game extends Scene {
         // body.collisionFilter.category = this.pinsCategory;
         // body.collisionFilter.mask = this.ballsCategory;
       }
-
-      startY += 38;
     }
 
     //  Our bucket to collect the balls in
@@ -154,11 +157,11 @@ export class Game extends Scene {
     // });
 
     //  A basic score
-    let score = 0;
+    // let score = 0;
 
-    const scoreText = this.add.text(10, 10, "Score: 0", {
+    this.add.text(10, 10, "Score: 0", {
       font: "16px Courier",
-      fill: "#00ff00",
+      color: "#00ff00",
     });
 
     //  The balls we can drop from the top
@@ -167,7 +170,7 @@ export class Game extends Scene {
 
     this.ballsText = this.add.text(690, 10, "Balls: 100", {
       font: "16px Courier",
-      fill: "#00ff00",
+      color: "#00ff00",
     });
 
     //  A function that creates a ball
@@ -179,18 +182,17 @@ export class Game extends Scene {
     //   });
     // });
 
-    this.input.on("pointerdown", (pointer) => {
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
       //   this.createBall(dropper.position.x, dropper.position.y);
       this.createBall(pointer.worldX, pointer.worldY);
     });
   }
 
-  update(time: number, delta: number) {
-    const maxBalls = 200;
+  update(time: number, _delta: number) {
     const msPerBall = 50;
     if (this.balls.size < maxBalls && this.lastBallTime + msPerBall < time) {
       this.lastBallTime = time;
-      this.createBall(400, 100);
+      this.createBall(400, ballDropY);
     }
 
     //  If a ball goes below the screen, remove it
@@ -209,7 +211,7 @@ export class Game extends Scene {
   createBall(x: number, y: number) {
     const ball = this.matter.add.image(x, y, "ball");
     // this.matter.add.rectangle(x, y, 10, 10, {});
-    const radius = 10;
+    const radius = 8;
     ball.setDisplaySize(radius * 2, radius * 2);
     ball.setCircle(radius);
     ball.setFriction(0.005);
@@ -233,6 +235,6 @@ export class Game extends Scene {
 
     this.balls.add(ball);
 
-    this.ballsText.setText("Balls: " + (100 - this.balls.size));
+    this.ballsText.setText("Balls: " + this.balls.size);
   }
 }
