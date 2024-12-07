@@ -1,17 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/style.css">
-    <title>Phaser - Template</title>
-</head>
+    <link rel="stylesheet" href="/style.css" />
+    <title>Normal Distribution Galton Board Simulation</title>
 
-<body>
+    <script type="text/javascript">
+      var gaJsHost =
+        "https:" == document.location.protocol ? "https://ssl." : "http://www.";
+      document.write(
+        unescape(
+          "%3Cscript src='" +
+            gaJsHost +
+            "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"
+        )
+      );
+    </script>
+    <script type="text/javascript">
+      try {
+        var pageTracker = _gat._getTracker("UA-4533496-22");
+        pageTracker._trackPageview();
+      } catch (err) {}
+    </script>
+  </head>
+
+  <body>
     <div id="app">
-        <div id="game-container"></div>
+      <div id="game-container"></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
-</body>
+  </body>
 </html>
